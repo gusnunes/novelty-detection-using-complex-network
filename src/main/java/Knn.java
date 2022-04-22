@@ -29,7 +29,9 @@ public class Knn {
         Graph<Cluster, DefaultEdge> microClustersNetwork;
         microClustersNetwork = new SimpleGraph<>(DefaultEdge.class);
         
-        ArrayList<Pair<Integer,Double>> tuples = new ArrayList<>();
+        // for each micro-cluster
+        // (index,distance) between all others micro-clusters
+        ArrayList<Pair<Integer,Double>> indexDistance = new ArrayList<>();
         
         clusters_number = microClustering.size();
         distance_matrix = new double[clusters_number][clusters_number];
@@ -56,12 +58,12 @@ public class Knn {
                         distance = distance_matrix[column][row]; 
                     }
 
-                    tuples.add(Pair.of(column,distance));
+                    indexDistance.add(Pair.of(column,distance));
                 }
             }
 
-            tuples.sort(Comparator.comparing(Pair::getRight));
-            tuples.clear();
+            indexDistance.sort(Comparator.comparing(Pair::getRight));
+            indexDistance.clear();
         }
     }
 
@@ -75,6 +77,5 @@ public class Knn {
 	}
 
     public static void main(String[] args){
-        
     }
 }
