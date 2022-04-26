@@ -4,7 +4,6 @@ import moa.cluster.Clustering;
 import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Scanner;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.DefaultEdge;
@@ -23,10 +22,16 @@ public class Knn {
         microClustersNetwork = new SimpleGraph<>(DefaultEdge.class);
 
         addVertices();
-        geraRede();
+        buildNetwork();
     }
 
-    public void geraRede(){
+    private void addVertices(){
+        for(Cluster microCluster: microClustering.getClustering()){
+            microClustersNetwork.addVertex(microCluster);
+        }
+    }
+
+    private void buildNetwork(){
         Cluster microClusterA, microClusterB;
         double[] centerA, centerB;
         double[][] distance_matrix;
@@ -65,17 +70,21 @@ public class Knn {
             }
 
             indexDistance.sort(Comparator.comparing(Pair::getRight));
-            connectNearestNeighbours(microClusterA, indexDistance);
+            connectNearestNeighbours(microClusterA,indexDistance);
             
             indexDistance.clear();
         }
     }
 
-    private void addVertices(){
-        for(Cluster microCluster: microClustering.getClustering()){
-            microClustersNetwork.addVertex(microCluster);
-        }
-    }
+    public double euclideanDistance(double[] pointA, double [] pointB) {
+		double distance = 0.0;
+		for (int i = 0; i < pointA.length; i++) {
+			double d = pointA[i] - pointB[i];
+			distance += d * d;
+		}
+		
+        return Math.sqrt(distance);
+	}
 
     private void connectNearestNeighbours(Cluster source, ArrayList<Pair<Integer,Double>> Neighbours){
         int index_target;
@@ -83,22 +92,10 @@ public class Knn {
         
         for(int i=0; i<k_Nearest; i++){
             index_target = Neighbours.get(i).getLeft();
-
-            //System.out.println(index_target);
-            
             target = microClustering.get(index_target);
-            microClustersNetwork.addEdge(source, target);
+            microClustersNetwork.addEdge(source,target);
         }
     }
-
-    private static double euclideanDistance(double[] pointA, double [] pointB) {
-		double distance = 0.0;
-		for (int i = 0; i < pointA.length; i++) {
-			double d = pointA[i] - pointB[i];
-			distance += d * d;
-		}
-		return Math.sqrt(distance);
-	}
 
     public static void main(String[] args){
     }
