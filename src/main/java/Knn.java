@@ -4,18 +4,26 @@ import moa.cluster.Clustering;
 import org.apache.commons.lang3.tuple.Pair;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Scanner;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Knn {
-    public int k;
+    public int k_Nearest;
     public Clustering microClustering;
 
+    private Graph<Cluster, DefaultEdge> microClustersNetwork;
+
     public Knn(int k, Clustering microClustering){
-        this.k = k;
+        k_Nearest = k;
         this.microClustering = microClustering;
+
+        microClustersNetwork = new SimpleGraph<>(DefaultEdge.class);
+
+        addVertices();
+        geraRede();
     }
 
     public void geraRede(){
@@ -25,9 +33,6 @@ public class Knn {
         
         double distance;
         int clusters_number;
-
-        Graph<Cluster, DefaultEdge> microClustersNetwork;
-        microClustersNetwork = new SimpleGraph<>(DefaultEdge.class);
         
         // for each micro-cluster
         // (index,distance) between all others micro-clusters
@@ -39,9 +44,6 @@ public class Knn {
         // build the distance matrix between micro-clusters
         for(int row=0; row<clusters_number; row++){
             microClusterA = microClustering.get(row);
-
-            // vertex for each micro-cluster
-            microClustersNetwork.addVertex(microClusterA);
             
             for(int column=0; column<clusters_number; column++){
                 if(row != column){
@@ -63,7 +65,29 @@ public class Knn {
             }
 
             indexDistance.sort(Comparator.comparing(Pair::getRight));
+            connectNearestNeighbours(microClusterA, indexDistance);
+            
             indexDistance.clear();
+        }
+    }
+
+    private void addVertices(){
+        for(Cluster microCluster: microClustering.getClustering()){
+            microClustersNetwork.addVertex(microCluster);
+        }
+    }
+
+    private void connectNearestNeighbours(Cluster source, ArrayList<Pair<Integer,Double>> Neighbours){
+        int index_target;
+        Cluster target;
+        
+        for(int i=0; i<k_Nearest; i++){
+            index_target = Neighbours.get(i).getLeft();
+
+            //System.out.println(index_target);
+            
+            target = microClustering.get(index_target);
+            microClustersNetwork.addEdge(source, target);
         }
     }
 
