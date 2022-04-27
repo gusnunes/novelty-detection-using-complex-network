@@ -7,7 +7,7 @@ import java.util.Comparator;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.graph.SimpleDirectedGraph;
 
 public class Knn {
     public int k_Nearest;
@@ -19,7 +19,7 @@ public class Knn {
         k_Nearest = k;
         this.microClustering = microClustering;
 
-        microClustersNetwork = new SimpleGraph<>(DefaultEdge.class);
+        microClustersNetwork = new SimpleDirectedGraph<>(DefaultEdge.class);
 
         addVertices();
         buildNetwork();
