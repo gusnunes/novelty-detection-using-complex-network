@@ -11,8 +11,6 @@ import java.util.Scanner;
 import org.jgrapht.*;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
-
-import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.nio.matrix.MatrixExporter;
 
 public class Knn {
@@ -35,6 +33,7 @@ public class Knn {
         int clusters_number;
 
         clusters_number = microClustering.size();
+
         for(int clusterIndex=0; clusterIndex<clusters_number; clusterIndex++){
             microClustersNetwork.addVertex(clusterIndex);
         }
@@ -79,10 +78,19 @@ public class Knn {
             }
 
             indexDistance.sort(Comparator.comparing(Pair::getRight));
-            connectNearestNeighbours(microClusterA,indexDistance);
+            connectVertices(row,indexDistance);
             
             indexDistance.clear();
         }
+
+        MatrixExporter<Integer,DefaultEdge> x;
+        x = new MatrixExporter<>(MatrixExporter.Format.SPARSE_ADJACENCY_MATRIX, v -> v.toString());
+
+        File file = new File("teste.txt");
+        x.exportGraph(microClustersNetwork,file);
+
+        Scanner teste = new Scanner(System.in);
+        String opa = teste.nextLine();
     }
 
     public double euclideanDistance(double[] pointA, double [] pointB) {
@@ -95,50 +103,17 @@ public class Knn {
         return Math.sqrt(distance);
 	}
 
-    private void connectNearestNeighbours(Cluster source, ArrayList<Pair<Integer,Double>> Neighbours){
-        int index_target;
-        Cluster target;
+    
+    // connect nearest neighbours
+    private void connectVertices(int source, ArrayList<Pair<Integer,Double>> Neighbours){
+        int target;
         
         for(int i=0; i<k_Nearest; i++){
-            index_target = Neighbours.get(i).getLeft();
-            target = microClustering.get(index_target);
+            target = Neighbours.get(i).getLeft();
             microClustersNetwork.addEdge(source,target);
         }
     }
 
     public static void main(String[] args){
-        Graph<Integer, DefaultEdge> g = new SimpleGraph<>(DefaultEdge.class);
-        
-        for(int i=1; i<=8; i++){
-            g.addVertex(i);
-        }
-
-        g.addEdge(1, 2);
-        g.addEdge(1, 3);
-        g.addEdge(1, 4);
-
-        g.addEdge(2, 3);
-        g.addEdge(2, 6);
-
-        g.addEdge(3, 4);
-        g.addEdge(3, 5);
-
-        g.addEdge(4, 5);
-        g.addEdge(4, 6);
-
-        g.addEdge(5, 6);
-        g.addEdge(5, 7);
-        g.addEdge(5, 8);
-
-        g.addEdge(6, 7);
-        g.addEdge(6, 8);
-
-        g.addEdge(7, 8);
-
-
-        MatrixExporter<Integer, DefaultEdge> teste = new MatrixExporter<>();
-
-        File file = new File("teste.txt");
-        teste.exportGraph(g,file);
     }
 }
