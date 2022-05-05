@@ -6,12 +6,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Scanner;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.nio.matrix.MatrixExporter;
+import org.jgrapht.nio.matrix.MatrixExporter.Format;
 
 public class Knn {
     public int k_Nearest;
@@ -82,15 +82,6 @@ public class Knn {
             
             indexDistance.clear();
         }
-
-        MatrixExporter<Integer,DefaultEdge> x;
-        x = new MatrixExporter<>(MatrixExporter.Format.SPARSE_ADJACENCY_MATRIX, v -> v.toString());
-
-        File file = new File("teste.txt");
-        x.exportGraph(microClustersNetwork,file);
-
-        Scanner teste = new Scanner(System.in);
-        String opa = teste.nextLine();
     }
 
     public double euclideanDistance(double[] pointA, double [] pointB) {
@@ -103,7 +94,6 @@ public class Knn {
         return Math.sqrt(distance);
 	}
 
-    
     // connect nearest neighbours
     private void connectVertices(int source, ArrayList<Pair<Integer,Double>> Neighbours){
         int target;
@@ -112,6 +102,16 @@ public class Knn {
             target = Neighbours.get(i).getLeft();
             microClustersNetwork.addEdge(source,target);
         }
+    }
+
+    public void exportGraph(){
+        Format format = MatrixExporter.Format.SPARSE_ADJACENCY_MATRIX;
+
+        MatrixExporter<Integer,DefaultEdge> exporter;
+        exporter = new MatrixExporter<>(format, v -> v.toString());
+
+        File file = new File("teste.txt");
+        exporter.exportGraph(microClustersNetwork,file);
     }
 
     public static void main(String[] args){
