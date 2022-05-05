@@ -2,18 +2,24 @@ import moa.cluster.Cluster;
 import moa.cluster.Clustering;
 
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Scanner;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
+import org.jgrapht.graph.SimpleGraph;
+import org.jgrapht.nio.matrix.MatrixExporter;
+
 public class Knn {
     public int k_Nearest;
     public Clustering microClustering;
 
-    private Graph<Cluster, DefaultEdge> microClustersNetwork;
+    private Graph<Integer, DefaultEdge> microClustersNetwork;
 
     public Knn(int k, Clustering microClustering){
         k_Nearest = k;
@@ -26,8 +32,11 @@ public class Knn {
     }
 
     private void addVertices(){
-        for(Cluster microCluster: microClustering.getClustering()){
-            microClustersNetwork.addVertex(microCluster);
+        int clusters_number;
+
+        clusters_number = microClustering.size();
+        for(int clusterIndex=0; clusterIndex<clusters_number; clusterIndex++){
+            microClustersNetwork.addVertex(clusterIndex);
         }
     }
 
@@ -98,5 +107,38 @@ public class Knn {
     }
 
     public static void main(String[] args){
+        Graph<Integer, DefaultEdge> g = new SimpleGraph<>(DefaultEdge.class);
+        
+        for(int i=1; i<=8; i++){
+            g.addVertex(i);
+        }
+
+        g.addEdge(1, 2);
+        g.addEdge(1, 3);
+        g.addEdge(1, 4);
+
+        g.addEdge(2, 3);
+        g.addEdge(2, 6);
+
+        g.addEdge(3, 4);
+        g.addEdge(3, 5);
+
+        g.addEdge(4, 5);
+        g.addEdge(4, 6);
+
+        g.addEdge(5, 6);
+        g.addEdge(5, 7);
+        g.addEdge(5, 8);
+
+        g.addEdge(6, 7);
+        g.addEdge(6, 8);
+
+        g.addEdge(7, 8);
+
+
+        MatrixExporter<Integer, DefaultEdge> teste = new MatrixExporter<>();
+
+        File file = new File("teste.txt");
+        teste.exportGraph(g,file);
     }
 }
