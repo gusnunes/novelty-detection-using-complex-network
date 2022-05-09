@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class NearestClusters {
-    public int kNearest;
+    private int kNearest;
     
     // (source,target) -- clusters index pair
     // target is one of the k nearest cluster of source
-    public ArrayList<Pair<Integer,Integer>> nearestClusters;
+    private ArrayList<Pair<Integer,Integer>> nearestClusters;
     
     // used in python code to generate network
     public static final String OUT_FILE = "edge_list.txt";
@@ -88,6 +88,10 @@ public class NearestClusters {
             target = indexDistance.get(i).getLeft();
             nearestClusters.add(Pair.of(source,target));
         }
+    }
+
+    public ArrayList<Pair<Integer,Integer>> getNearestClusters(){
+        return nearestClusters;
     }
 
     public void exportTXT() throws IOException{
