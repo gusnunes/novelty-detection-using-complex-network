@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import com.yahoo.labs.samoa.instances.Instance;
 import moa.gui.visualization.DataPoint;
@@ -12,10 +13,13 @@ public class Teste{
     private AbstractClusterer clusterer;
     
     private int totalInstances;
+	private NearestClusters nearestClusters;
 
-    public Teste(ClusteringStream stream, AbstractClusterer clusterer, int totalInstances){
+    public Teste(ClusteringStream stream, AbstractClusterer clusterer, int totalInstances, int kNearest){
         this.stream = stream;
         this.clusterer = clusterer;
+
+		nearestClusters = new NearestClusters(kNearest);
 
         if(totalInstances == -1)
 			this.totalInstances = Integer.MAX_VALUE;
@@ -28,7 +32,7 @@ public class Teste{
     
     // Aqui será o metodo que gera os micro-grupos
     // O KNN vai pegar esse resultado pra gerar a rede
-    public void run(){
+    public void run() throws Exception{
         ArrayList<DataPoint> pointBuffer0 = new ArrayList<DataPoint>();
 		int m_timestamp = 0;
 		int decayHorizon = stream.getDecayHorizon();
@@ -67,9 +71,15 @@ public class Teste{
 
 					Clustering microC = clusterer.getMicroClusteringResult();
 
-					// melhorar os nomes
-					Knn network = new Knn(5,microC);
-					network.geraRede();
+					nearestClusters.findNearestClusters(microC);
+					nearestClusters.exportTXT();
+
+					// Aqui tem que vir o codigo python agora
+					PythonProcess uai = new PythonProcess(NearestClusters.OUT_FILE);
+					uai.givenPythonScript_whenPythonProcessInvoked_thenSuccess();
+
+					Scanner x = new Scanner(System.in);
+					String ue = x.nextLine();
 
 					if(clusterer.evaluateMicroClusteringOption.isSet()){
 						clustering0 = microC;
@@ -81,6 +91,9 @@ public class Teste{
 							clustering0 = moa.clusterers.KMeans.gaussianMeans(gtClustering0, microC);
 					}
 				}
+
+				pointBuffer0.clear();
+				counter = decayHorizon;
             }
         }
     }    

@@ -3,16 +3,27 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.lang.ProcessBuilder;
 import java.lang.Process;
 
 public class PythonProcess {
-    public static final String IN_FILE = "teste.py";
+    private String edgeListFile;
+    public static final String SCRIPT_NAME = "teste.py";
+
+    public PythonProcess(String edgeListFile){
+        this.edgeListFile = edgeListFile;     
+    }
 
     public void givenPythonScript_whenPythonProcessInvoked_thenSuccess() throws Exception {
-        ProcessBuilder processBuilder = new ProcessBuilder("python", scriptPath(IN_FILE));
+        List<String> command = new ArrayList<String>();
+        command.add("python");
+        command.add(scriptPath(SCRIPT_NAME));
+        command.add(edgeListFile);
+
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
 
         Process process = processBuilder.start();
@@ -42,7 +53,7 @@ public class PythonProcess {
     }
 
     public static void main(String[] args) throws Exception {
-        PythonProcess teste = new PythonProcess();
-        teste.givenPythonScript_whenPythonProcessInvoked_thenSuccess();
+        /*PythonProcess teste = new PythonProcess();
+        teste.givenPythonScript_whenPythonProcessInvoked_thenSuccess();*/
     }
 }

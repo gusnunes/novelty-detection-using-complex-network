@@ -1,11 +1,15 @@
+import sys
 from igraph import *
 
-PATH = "python_scripts\\"
-FILE = "edge_list.txt"
-
 def main():
-    print("deu certo")
-    g = Graph.Read_Edgelist(PATH + FILE)
-    print(g)
+    filename = sys.argv[1]
+    print(filename)
+
+    g = Graph.Read_Edgelist(filename).as_undirected()
+
+    #g = Graph.Read_Edgelist(filename)
+    x = Graph.community_multilevel(g)
+
+    print(x)
 
 main()

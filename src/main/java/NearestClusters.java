@@ -18,7 +18,6 @@ public class NearestClusters {
     private ArrayList<Pair<Integer,Integer>> nearestClusters;
     
     // used in python code to generate network
-    public static final String PATH = "python_scripts\\";
     public static final String OUT_FILE = "edge_list.txt";
 
     public NearestClusters(int kNearest){
@@ -98,7 +97,7 @@ public class NearestClusters {
     public void exportTXT() throws IOException{
         String left, right;
 
-        File file = new File(PATH + OUT_FILE);
+        File file = new File(OUT_FILE);
         FileWriter fw = new FileWriter(file.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
 
