@@ -8,11 +8,12 @@ def main():
     g = Graph.Read_Edgelist(filename).as_undirected()
 
     #g = Graph.Read_Edgelist(filename)
-    #Graph.community_fastgreedy(g)
-    communities = g.community_fastgreedy()
+    communities = Graph.community_fastgreedy(g)
+    #communities = g.community_fastgreedy()
 
     for cluster in communities.as_clustering():
-        str_cluster = str(cluster)
-        print(str_cluster.strip("[]"))
+        # no brackets and spaces
+        str_cluster = str(cluster).strip("[]").replace(" ","")
+        print(str_cluster)
 
 main()
