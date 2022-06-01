@@ -44,20 +44,19 @@ public class NearestClusters {
         // build the distance matrix between micro-clusters
         for(Integer row=0; row<clusters_number; row++){
             microClusterA = microClustering.get(row);
+            centerA = microClusterA.getCenter();
             
             for(Integer column=0; column<clusters_number; column++){
                 if(row != column){
-                    microClusterB = microClustering.get(column);
-                    
                     if(column > row){
-                        centerA = microClusterA.getCenter();
+                        microClusterB = microClustering.get(column);
                         centerB = microClusterB.getCenter();
 
                         distance = euclideanDistance(centerA,centerB);
                         distance_matrix[row][column] = distance;
                     }
                     else { 
-                        distance = distance_matrix[column][row]; 
+                        distance = distance_matrix[column][row];
                     }
 
                     indexDistance.add(Pair.of(column,distance));
