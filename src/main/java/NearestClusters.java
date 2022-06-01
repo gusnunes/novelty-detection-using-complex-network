@@ -55,9 +55,8 @@ public class NearestClusters {
                         distance = euclideanDistance(centerA,centerB);
                         distance_matrix[row][column] = distance;
                     }
-                    else { 
+                    else
                         distance = distance_matrix[column][row];
-                    }
 
                     indexDistance.add(Pair.of(column,distance));
                 }
@@ -70,9 +69,10 @@ public class NearestClusters {
         }
     }
 
-    public double euclideanDistance(double[] pointA, double [] pointB) {
+    public double euclideanDistance(double[] pointA, double[] pointB) {
 		double distance = 0.0;
-		for (int i = 0; i < pointA.length; i++) {
+
+		for(int i = 0; i < pointA.length; i++){
 			double d = pointA[i] - pointB[i];
 			distance += d * d;
 		}
@@ -108,8 +108,5 @@ public class NearestClusters {
         }
 
         bw.close();
-    }
-
-    public static void main(String[] args) throws IOException{
     }
 }
