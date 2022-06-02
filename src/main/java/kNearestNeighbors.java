@@ -3,28 +3,21 @@ import moa.cluster.Clustering;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-public class NearestClusters {
+public class kNearestNeighbors{
     private int kNearest;
     
-    // (source,target) -- clusters index pair
+    // Pair<source,target> -- clusters index pair
     // target is one of the k nearest cluster of source
     private ArrayList<Pair<Integer,Integer>> nearestClusters;
-    
-    // used in python code to generate network
-    public static final String OUT_FILE = "edge_list.txt";
 
-    public NearestClusters(int kNearest){
+    public kNearestNeighbors(int kNearest){
         this.kNearest = kNearest;
     }
 
-    public void findNearestClusters(Clustering microClustering){
+    public void find(Clustering microClustering){
         Cluster microClusterA, microClusterB;
         double[] centerA, centerB;
         double[][] distance_matrix;
@@ -35,7 +28,7 @@ public class NearestClusters {
         nearestClusters = new ArrayList<>();
         
         // for each micro-cluster
-        // (index,distance) between all others micro-clusters
+        // Pair<index,distance> between all others micro-clusters
         ArrayList<Pair<Integer,Double>> indexDistance = new ArrayList<>();
         
         clusters_number = microClustering.size();
@@ -89,24 +82,7 @@ public class NearestClusters {
         }
     }
 
-    public ArrayList<Pair<Integer,Integer>> getNearestClusters(){
+    public ArrayList<Pair<Integer,Integer>> getNearestNeighbors(){
         return nearestClusters;
-    }
-
-    public void exportTXT() throws IOException{
-        String left, right;
-
-        File file = new File(OUT_FILE);
-        FileWriter fw = new FileWriter(file.getAbsoluteFile());
-        BufferedWriter bw = new BufferedWriter(fw);
-
-        for(Pair<Integer,Integer> pair: nearestClusters){
-            left = pair.getLeft().toString();
-            right = pair.getRight().toString();
-
-            bw.write(left + " " + right + '\n');
-        }
-
-        bw.close();
     }
 }
