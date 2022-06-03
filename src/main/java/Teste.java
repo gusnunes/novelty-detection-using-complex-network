@@ -1,33 +1,43 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import com.yahoo.labs.samoa.instances.Instance;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import moa.gui.visualization.DataPoint;
 import moa.streams.clustering.ClusteringStream;
 import moa.clusterers.AbstractClusterer;
 import com.yahoo.labs.samoa.instances.DenseInstance;
+
+import moa.cluster.CFCluster;
+import moa.cluster.Cluster;
 import moa.cluster.Clustering;
 
-public class Teste{
+public class Teste {
+	private int totalInstances;
+
 	private ClusteringStream stream;
     private AbstractClusterer clusterer;
-    
-    private int totalInstances;
-	private NearestClusters nearestClusters;
 
-    public Teste(ClusteringStream stream, AbstractClusterer clusterer, int totalInstances, int kNearest){
-        this.stream = stream;
-        this.clusterer = clusterer;
+	private kNearestNeighbors nearestClusters;
+	private CommunityDetection pythonProcess;
 
-		nearestClusters = new NearestClusters(kNearest);
+    public Teste(ClusteringStream stream, AbstractClusterer clusterer, int totalInstances, int kNearest){	
+		this.stream = stream;
+		this.clusterer = clusterer;
 
-        if(totalInstances == -1)
+		nearestClusters = new kNearestNeighbors(kNearest);
+		pythonProcess = new CommunityDetection();
+
+		if(totalInstances == -1)
 			this.totalInstances = Integer.MAX_VALUE;
 		else
 			this.totalInstances = totalInstances;
-        
-        stream.prepareForUse();
-        clusterer.prepareForUse();
+		
+		stream.prepareForUse();
+		clusterer.prepareForUse();
     }
     
     // Aqui será o metodo que gera os micro-grupos
@@ -68,27 +78,30 @@ public class Teste{
 				clustering0 = clusterer.getClusteringResult();
 				
 				if(clusterer.implementsMicroClusterer()){
+					Clustering microClustering;	
+					microClustering = clusterer.getMicroClusteringResult();
+					
+					ArrayList<Pair<Integer,Integer>> nearestResult;
+					nearestClusters.find(microClustering);
+					nearestResult = nearestClusters.getNearestNeighbors();
+	
+					ArrayList<List<String>> communities;
+					pythonProcess.detectCommunities(nearestResult.toString());
+					communities = pythonProcess.getCommunities();
 
-					Clustering microC = clusterer.getMicroClusteringResult();
+					//Clustering opa = macroClustering(communities,microClustering);
 
-					nearestClusters.findNearestClusters(microC);
-					nearestClusters.exportTXT();
-
-					// Aqui tem que vir o codigo python agora
-					PythonProcess uai = new PythonProcess(NearestClusters.OUT_FILE);
-					uai.givenPythonScript_whenPythonProcessInvoked_thenSuccess();
-
-					Scanner x = new Scanner(System.in);
-					String ue = x.nextLine();
+					Scanner xu = new Scanner(System.in);
+					String ue = xu.nextLine();
 
 					if(clusterer.evaluateMicroClusteringOption.isSet()){
-						clustering0 = microC;
+						clustering0 = microClustering;
 					}
 					else{
-						if(clustering0 == null && microC != null)
+						if(clustering0 == null && microClustering != null)
 							// metodo de formacao de rede(KNN)
 							// metodo de deteccao de comunidade
-							clustering0 = moa.clusterers.KMeans.gaussianMeans(gtClustering0, microC);
+							clustering0 = moa.clusterers.KMeans.gaussianMeans(gtClustering0, microClustering);
 					}
 				}
 
@@ -96,5 +109,5 @@ public class Teste{
 				counter = decayHorizon;
             }
         }
-    }    
+    }
 }
