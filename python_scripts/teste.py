@@ -2,14 +2,16 @@ import sys
 from igraph import *
 
 def main():
-    filename = sys.argv[1]
-    #print(filename)
+    line = sys.stdin.readline()
+    print(line)
 
-    g = Graph.Read_Edgelist(filename).as_undirected()
+    edgeList = eval(line)
+    g = Graph(edges=edgeList,directed=True)
 
-    #g = Graph.Read_Edgelist(filename)
-    communities = Graph.community_fastgreedy(g)
-    #communities = g.community_fastgreedy()
+    g = g.as_undirected()
+
+    #communities = Graph.community_fastgreedy(g)
+    communities = g.community_fastgreedy()
 
     for cluster in communities.as_clustering():
         # no brackets and spaces
