@@ -24,24 +24,6 @@
       <artifactId>moa</artifactId>
       <version>2021.07.0</version>
     </dependency>
-    
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht-core</artifactId>
-      <version>1.5.1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht-core</artifactId>
-      <version>1.5.2-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jgrapht</groupId>
-      <artifactId>jgrapht-io</artifactId>
-      <version>1.5.1</version>
-    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
