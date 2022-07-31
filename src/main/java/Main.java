@@ -1,39 +1,24 @@
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import moa.clusterers.clustream.WithKmeans;
+import moa.clusterers.denstream.WithDBSCAN;
 import moa.streams.clustering.FileStream;
 
 public class Main {
 
-	public void run(int numInstances, String stream, int kNearestClusters) throws IOException {
-		// setar o arquivo arff para stream
-		FileStream file = new FileStream();
-		file.arffFileOption.setValue(stream);
+	public static void main(String[] args) throws Exception { // executa a tarefa
+        String dataset_name = "elecNormNew";
+		String dataset_path = "datasets\\" + dataset_name + ".arff";
 
+		FileStream file = new FileStream();
+		file.arffFileOption.setValue(dataset_path);
 		file.restart();
 
-		WithKmeans clusterer = new WithKmeans();
-		clusterer.resetLearningImpl();
+		int kNearestClusters = 10;
 
-		clusterer.maxNumKernelsOption.setValue(5);
-
-        // executa a tarefa
-        Teste oxe = new Teste(file,clusterer,numInstances,kNearestClusters);
-        oxe.run();
-	}
-
-	public static void main(String[] args) throws IOException, URISyntaxException {
-		Main exp = new Main();
-
-        // Nome do arquivo
-        String file = "elecNormNew";
+		// CluStream as clusterer
+		WithKmeans cluStream = new WithKmeans();
+		cluStream.resetLearningImpl();
 		
-		// Arquivo de entrada (caminho)
-		String input = "datasets\\" + file + ".arff";
-
-		int kNearestClusters = 3;
-	
-		exp.run(-1,input,kNearestClusters);
+		DataClustering task = new DataClustering(file,cluStream,kNearestClusters);
+		task.run();
 	}
 }
