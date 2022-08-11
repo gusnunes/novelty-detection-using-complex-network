@@ -14,7 +14,7 @@ import java.lang.ProcessBuilder;
 import java.lang.Process;
 
 public class CommunityDetection {
-    public static final String SCRIPT_NAME = "teste.py";
+    public static final String SCRIPT_NAME = "community_detection.py";
     private ArrayList<List<String>> communities;
 
     public void detectCommunities(String edgeList) throws Exception {
@@ -60,7 +60,7 @@ public class CommunityDetection {
         
         try (BufferedReader output = new BufferedReader(new InputStreamReader(inputStream))){
             while ((community = output.readLine()) != null) {
-                System.out.println(community); 
+                //System.out.println(community);
                 vertexIndex = community.split(",");
                 vertexIndexList = Arrays.asList(vertexIndex); 
                 communities.add(vertexIndexList);

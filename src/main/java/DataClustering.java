@@ -6,9 +6,14 @@ import com.yahoo.labs.samoa.instances.Instance;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import moa.gui.BatchCmd;
 import moa.gui.visualization.DataPoint;
+import moa.streams.clustering.ClusterEvent;
 import moa.streams.clustering.ClusteringStream;
+import moa.streams.clustering.RandomRBFGeneratorEvents;
 import moa.clusterers.AbstractClusterer;
+import moa.evaluation.MeasureCollection;
+
 import com.yahoo.labs.samoa.instances.DenseInstance;
 
 import moa.cluster.CFCluster;
@@ -24,21 +29,30 @@ public class DataClustering {
 	private kNearestNeighbors nearestClusters;
 	private CommunityDetection pythonProcess;
 
-    public DataClustering(ClusteringStream stream, AbstractClusterer clusterer, int kNearest){	
+	private MeasureCollection[] measures;
+
+    public DataClustering(ClusteringStream stream, AbstractClusterer clusterer, int kNearest, 
+			boolean[] measureCollection, int totalInstances){	
+		
 		this.stream = stream;
 		this.clusterer = clusterer;
 
+		if(totalInstances == -1)
+			this.totalInstances = Integer.MAX_VALUE;
+		else
+			this.totalInstances = totalInstances;
+
 		nearestClusters = new kNearestNeighbors(kNearest);
 		pythonProcess = new CommunityDetection();
-
-		totalInstances = Integer.MAX_VALUE;
 		
 		stream.prepareForUse();
 		clusterer.prepareForUse();
+
+		measures = ClusteringMeasures.getMeasures(measureCollection);
     }
     
     public void run() throws Exception{
-        ArrayList<DataPoint> pointBuffer0 = new ArrayList<DataPoint>();
+        ArrayList<DataPoint> pointBuffer = new ArrayList<DataPoint>();
 		int m_timestamp = 0;
 		int decayHorizon = stream.getDecayHorizon();
 
@@ -52,25 +66,23 @@ public class DataClustering {
 			counter--;
 
 			Instance next = stream.nextInstance().getData();
-			DataPoint point0 = new DataPoint(next,m_timestamp);
-			pointBuffer0.add(point0);
+			DataPoint point = new DataPoint(next,m_timestamp);
+			pointBuffer.add(point);
 
-			Instance traininst0 = new DenseInstance(point0);
+			Instance trainInst = new DenseInstance(point);
 			
-			traininst0.deleteAttributeAt(point0.classIndex());
+			trainInst.deleteAttributeAt(point.classIndex());
 
-			clusterer.trainOnInstanceImpl(traininst0);
+			clusterer.trainOnInstanceImpl(trainInst);
 
 			if(counter <= 0){
-				for(DataPoint p:pointBuffer0)
+				for(DataPoint p:pointBuffer)
 					p.updateWeight(m_timestamp, decay_rate);
 
-				Clustering gtClustering0;
-				Clustering clustering0 = null;
+				Clustering gtClustering;
+				Clustering clustering = null;
 
-				gtClustering0 = new Clustering(pointBuffer0);
-
-				clustering0 = clusterer.getClusteringResult();
+				gtClustering = new Clustering(pointBuffer);
 				
 				if(clusterer.implementsMicroClusterer()){
 					Clustering microClustering;	
@@ -84,23 +96,26 @@ public class DataClustering {
 					pythonProcess.detectCommunities(nearestResult.toString());
 					communities = pythonProcess.getCommunities();
 
-					//Clustering opa = macroClustering(communities,microClustering);
+					clustering = macroClustering(communities,microClustering);
 
 					/*Scanner xu = new Scanner(System.in);
 					String ue = xu.nextLine();*/
 
-					if(clusterer.evaluateMicroClusteringOption.isSet()){
-						clustering0 = microClustering;
-					}
-					else{
-						if(clustering0 == null && microClustering != null)
-							// metodo de formacao de rede(KNN)
-							// metodo de deteccao de comunidade
-							clustering0 = moa.clusterers.KMeans.gaussianMeans(gtClustering0, microClustering);
+					if(clustering == null && microClustering != null){
+						// Depois testar se entra aqui alguma vez
+						clustering = moa.clusterers.KMeans.gaussianMeans(gtClustering, microClustering);
 					}
 				}
 
-				pointBuffer0.clear();
+				//evaluate
+				for(int i=0; i<measures.length; i++) {
+					try {
+						measures[i].evaluateClusteringPerformance(clustering, gtClustering, pointBuffer);
+					} 
+					catch (Exception ex) { ex.printStackTrace(); }
+				}
+
+				pointBuffer.clear();
 				counter = decayHorizon;
             }
         }
@@ -135,5 +150,14 @@ public class DataClustering {
 		}
 
 		return new Clustering(converted);
+	}
+
+	public void exportResultCSV(String filepath){
+		// it's not a instance of RandomRBFGeneratorEvents, for now
+		ArrayList<ClusterEvent> clusterEvents = null;
+		
+		int horizon = stream.decayHorizonOption.getValue();
+		
+		BatchCmd.exportCSV(filepath, clusterEvents, measures, horizon);
 	}
 }
